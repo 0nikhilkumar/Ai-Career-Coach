@@ -1,0 +1,36 @@
+services:
+  next-app:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - ".env"
+    networks:
+      - next-app-network
+    depends_on:
+      - db
+    restart: always
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=aicareercoach
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - next-app-network
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  next-app-network:
+volumes:
+  db-data:
